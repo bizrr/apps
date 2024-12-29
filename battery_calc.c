@@ -4,8 +4,14 @@
 #include <unistd.h>
 
 int main() {
-  char *discharging_filename =
-      "/home/langsjo/nixos/dotfiles/apps/discharging_timeleft.txt";
+
+  // const char *bin_path = getenv("APPS_PATH");
+  // char discharging_filename[512];
+  // strcpy(discharging_filename, bin_path);
+  // strcat(discharging_filename, "/tmp/discharging_timeleft.txt");
+
+  const char *discharging_filename = "/tmp/discharging_timeleft.txt";
+
   int update_interval = 5;
   int window_size_minutes = 10;
   int lines_in_window = window_size_minutes * 60 / update_interval;
@@ -24,7 +30,7 @@ int main() {
   pclose(upower_stream);
 
   if (!strcmp(state, "discharging")) {
-    FILE *discharge_file = fopen(discharging_filename, "r");
+    FILE *discharge_file = fopen(discharging_filename, "w+");
     if (!discharge_file) {
       printf("fail line 27\n");
       return EXIT_FAILURE;
