@@ -1,0 +1,27 @@
+#!/bin/sh
+
+case "$1" in
+    -inc)SIGN="+";;
+    -dec)SIGN="-";;
+    *) echo "error: first param is either -inc or -dec";exit 1;;
+esac
+
+if ! [[ "$2" =~ ^([0-9]{1,2}|100)% ]] ; then
+    echo "error: second parameter must be at most 100 and then a percent sign"
+    exit 1
+fi
+
+PROPOSED_VOLUME=$(grep -Eo "[0-9]*" <<< $2)
+CURRENT_VOLUME="$(pactl get-sink-volume @DEFAULT_SINK@ | grep -Eo -m 1 '[0-9]*%' | head -1 | grep -o '[0-9]*')"
+
+SUM=$(( $CURRENT_VOLUME + $PROPOSED_VOLUME ))
+
+if [[ $SUM -gt 100 && $SIGN == '+' ]] ; then
+    FINAL_CHANGE="$(( 100 - $CURRENT_VOLUME ))%"
+else
+    FINAL_CHANGE="$2"
+fi
+
+pactl set-sink-volume @DEFAULT_SINK@ $SIGN$FINAL_CHANGE; pactl set-sink-mute @DEFAULT_SINK@ off; kill -38 $(pidof dwmblocks)
+
+
